@@ -11,12 +11,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class HealthInsightsDTO {
-    private long petId;
-    private String insights;
-    private int totalActivityDuration;
-    private int totalActivityDistance;
-    private int totalCaloriesConsumed;
+    private String petId;
+    private double totalActivityDuration;
+    private double totalActivityDistance;
+    private double totalCaloriesConsumed;
     private String nutritionRecommendation;
     private String activityRecommendation;
-
+    private int TotalActivityDays;
+    private int TotalNutritionDays;
 }

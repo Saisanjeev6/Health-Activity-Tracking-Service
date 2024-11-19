@@ -9,14 +9,15 @@ import lombok.Setter;
 
 
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @Getter
 @Setter
 @NoArgsConstructor
 public class NutritionLogDTO {
-    private long petId;
-    private long logId;
+    private String petId;
+    private UUID logId;
     private Date date;
     private String food;
     private double calories;

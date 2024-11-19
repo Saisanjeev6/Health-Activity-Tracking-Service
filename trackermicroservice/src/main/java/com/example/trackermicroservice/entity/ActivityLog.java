@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.context.annotation.Primary;
+
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,15 +16,16 @@ import org.springframework.context.annotation.Primary;
 @NoArgsConstructor
 public class ActivityLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long logId;
-    private long petId;
+    @GeneratedValue(generator = "UUID")
+    private UUID logId;
+    private String petId;
     private String activity;
     private String duration;
     private String distance;
     private String date;
-    public ActivityLog(long petid, ActivityLogDTO activityLogDTO){
+    public ActivityLog(String petid, ActivityLogDTO activityLogDTO){
         this.petId = petid;
+        this.logId = logId;
         this.activity = activityLogDTO.getActivity();
         this.duration = activityLogDTO.getDuration();
         this.distance = activityLogDTO.getDistance();

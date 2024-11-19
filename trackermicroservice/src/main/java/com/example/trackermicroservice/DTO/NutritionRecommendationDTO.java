@@ -11,6 +11,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class NutritionRecommendationDTO {
-    private long petId;
+    private String petId;
     private String recommendation;
 }

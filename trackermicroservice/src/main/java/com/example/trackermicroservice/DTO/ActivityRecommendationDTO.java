@@ -13,7 +13,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class ActivityRecommendationDTO {
-    private long petId;
+    private String petId;
     private String recommendedDuration;
     private String recommendedDistance;
     private String activity;

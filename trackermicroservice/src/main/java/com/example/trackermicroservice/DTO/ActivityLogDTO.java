@@ -7,12 +7,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Data
 @Getter
 @Setter
 @NoArgsConstructor
 public class ActivityLogDTO {
-    private long logId;
+    private UUID logId;
     private String activity;
     private String duration;
     private String distance;

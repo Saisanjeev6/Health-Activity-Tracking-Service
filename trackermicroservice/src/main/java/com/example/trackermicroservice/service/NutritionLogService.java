@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class NutritionLogService {
@@ -18,8 +19,8 @@ public class NutritionLogService {
     public NutritionLogService(NutritionLogRepository nutritionLogRepository) {
         this.nutritionLogRepository = nutritionLogRepository;
     }
-    public List<NutritionLogDTO> getNutritionLogs(long petId) {
-        if(nutritionLogRepository.getReferenceById(petId) != null) {
+    public List<NutritionLogDTO> getNutritionLogs(String petId) {
+        if(nutritionLogRepository.getNutritionLogs(petId).size() != 0) {
             List<NutrionLog> nutrionLogs = nutritionLogRepository.getNutritionLogs(petId);
             List<NutritionLogDTO> nutritionLogDTOS = new ArrayList<>();
             for(NutrionLog nutrionLog : nutrionLogs) {
@@ -32,17 +33,18 @@ public class NutritionLogService {
             throw new IllegalArgumentException("Pet not found");
     }
 
-    public NutritionLogDTO addNutritionLog(long petId, NutritionLogDTO nutritionLogDTO) {
+    public NutritionLogDTO addNutritionLog(String  petId, NutritionLogDTO nutritionLogDTO) {
         NutrionLog nutrionLog = new NutrionLog(petId, nutritionLogDTO);
 
         if (nutritionLogRepository.save(nutrionLog) != null) {
             nutritionLogDTO.setLogId(nutrionLog.getLogId());
+            nutritionLogDTO.setPetId(petId);
             return nutritionLogDTO;
         } else
             throw new IllegalArgumentException("Unable to add nutrition log");
     }
 
-    public NutritionLogDTO updateNutritionLog(long petId, long logId, NutritionLogDTO nutritionLogDTO) {
+    public NutritionLogDTO updateNutritionLog(String petId, UUID logId, NutritionLogDTO nutritionLogDTO) {
         NutrionLog nutrionLog = new NutrionLog(petId, nutritionLogDTO);
         nutrionLog.setLogId(logId);
         if(nutritionLogRepository.getReferenceByLogAndPetId(logId, petId) != 0 && nutritionLogRepository.save(nutrionLog) != null) {
@@ -54,7 +56,7 @@ public class NutritionLogService {
             throw new IllegalArgumentException("Pet not found, if you want to add a new log use POST method");
     }
 
-    public void deleteNutritionLog(long petId, long logId) {
+    public void deleteNutritionLog(String petId, UUID logId) {
         if(nutritionLogRepository.getReferenceById(logId) != null) {
             nutritionLogRepository.deleteById(logId);
         }
@@ -62,8 +64,11 @@ public class NutritionLogService {
             throw new IllegalArgumentException("Pet not found");
     }
 
-    public List<NutritionRecommendationDTO> getNutritionRecommendations(long petId) {
+    public List<NutritionRecommendationDTO> getNutritionRecommendations(String petId) {
         List<NutrionLog> nutrionLogs = nutritionLogRepository.getNutritionLogs(petId);
+        if(nutrionLogs.size() == 0) {
+            throw new IllegalArgumentException("Pet not found");
+        }
         List<NutritionRecommendationDTO> recommendations = new ArrayList<>();
 
         for (NutrionLog log : nutrionLogs) {

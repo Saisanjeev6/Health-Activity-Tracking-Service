@@ -6,8 +6,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -15,9 +17,9 @@ import java.util.Date;
 @NoArgsConstructor
 public class NutrionLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long logId;
-    private long petId;
+    @GeneratedValue(generator = "UUID")
+    private UUID logId;
+    private String petId;
     private Date date;
     private String food;
     private double calories;
@@ -26,7 +28,7 @@ public class NutrionLog {
     private double fiber;
     private double carbohydrates;
     private double weight;
-    public NutrionLog(long petId, NutritionLogDTO nutritionLogDTO){
+    public NutrionLog(String petId, NutritionLogDTO nutritionLogDTO){
         this.petId = petId;
         this.date = nutritionLogDTO.getDate();
         this.food = nutritionLogDTO.getFood();
