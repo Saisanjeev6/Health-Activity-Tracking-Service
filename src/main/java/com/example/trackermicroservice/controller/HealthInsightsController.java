@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.trackermicroservice.service.HealthInsightsService;
 
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/health")
 public class HealthInsightsController {
