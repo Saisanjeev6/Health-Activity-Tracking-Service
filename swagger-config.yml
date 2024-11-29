@@ -3,10 +3,10 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-  - url: https://health-activity-tracking-service-production.up.railway.app
-    description: https server
   - url: http://health-activity-tracking-service-production.up.railway.app
-    description: http server
+    description: Production server
+  - url: http://localhost:8080
+    description: Local development server
 paths:
   /api/health/pet/{petId}/nutrition/log/{logId}:
     put:
@@ -390,9 +390,3 @@ components:
           type: string
         date:
           type: string
-
-
-
-
-
-
