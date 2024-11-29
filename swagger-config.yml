@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-  - url: http://localhost:3000
+  - url: https://health-activity-tracking-service-production.up.railway.app
     description: Generated server url
 paths:
   /api/health/pet/{petId}/nutrition/log/{logId}:
