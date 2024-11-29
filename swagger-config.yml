@@ -4,7 +4,9 @@ info:
   version: v0
 servers:
   - url: https://health-activity-tracking-service-production.up.railway.app
-    description: Generated server url
+    description: https server
+  - url: http://health-activity-tracking-service-production.up.railway.app
+    description: http server
 paths:
   /api/health/pet/{petId}/nutrition/log/{logId}:
     put:
