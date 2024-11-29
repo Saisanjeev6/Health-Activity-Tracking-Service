@@ -54,7 +54,7 @@ public class ActivityLogService {
     }
 
     public void deleteActivityLog(String petId, UUID logId) {
-        if(activityLogRepository.getReferenceById(logId) != null) {
+        if(activityLogRepository.getReferenceByLogIdAndPetId(logId,petId) != 0) {
             activityLogRepository.deleteById(logId);
         }
         else{

@@ -57,7 +57,7 @@ public class NutritionLogService {
     }
 
     public void deleteNutritionLog(String petId, UUID logId) {
-        if(nutritionLogRepository.getReferenceById(logId) != null) {
+        if(nutritionLogRepository.getReferenceByLogAndPetId(logId,petId) != 0) {
             nutritionLogRepository.deleteById(logId);
         }
         else
