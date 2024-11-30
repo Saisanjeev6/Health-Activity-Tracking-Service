@@ -19,12 +19,12 @@ public class HealthInsightsController {
         this.healthInsightsService = healthInsightsService;
     }
     @GetMapping("/pet/{petId}/health/insights")
-    public ResponseEntity<?> getHealthInsights(@PathVariable("petId") String petId) {
+    public ResponseEntity<?> getHealthInsights(@RequestHeader("Authorization") String authorizationToken,@PathVariable("petId") String petId) {
         try{
-            return ResponseEntity.ok(healthInsightsService.getHealthInsights(petId));
+            return ResponseEntity.ok(healthInsightsService.getHealthInsights(petId, authorizationToken));
         }
         catch(Exception exception){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There are no logs with the given petId");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There are no logs with the given petId or authorization might be failed");
         }
     }
     @GetMapping("/user/{userId}/dashboard")
@@ -33,7 +33,7 @@ public class HealthInsightsController {
             return ResponseEntity.ok(healthInsightsService.getUserDashBoard(authorizationToken, userId));
         }
         catch(Exception exception){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There are no pets with the given userId");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There are no pets with the given userId or authorization might be failed");
         }
     }
 }

@@ -25,7 +25,15 @@ public class ActivityLogService {
     public ActivityLogService(ActivityLogRepository activityLogRepository) {
         this.activityLogRepository = activityLogRepository;
     }
-
+    public boolean validateUser(String authorizationToken) throws Exception{
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/users/verify-token";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authorizationToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        return response.getStatusCode().is2xxSuccessful();
+    }
     public boolean checkPetExisistsOrNot(String petId, String authorizationToken) throws Exception{
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/pets/{id}";
@@ -36,8 +44,8 @@ public class ActivityLogService {
         return response.getStatusCode().is2xxSuccessful();
 
     }
-    public List<ActivityLogDTO> getActivityLogs(String petId) {
-        if(activityLogRepository.getActivityLogs(petId).size() != 0){
+    public List<ActivityLogDTO> getActivityLogs(String petId, String authorizationTokern) throws Exception{
+        if(validateUser(authorizationTokern) && activityLogRepository.getActivityLogs(petId).size() != 0){
             List<ActivityLog> activityLogs =  activityLogRepository.getActivityLogs(petId);
             List<ActivityLogDTO> activityLogDTOS = new ArrayList<>();
             for(ActivityLog activityLog : activityLogs){
@@ -59,19 +67,19 @@ public class ActivityLogService {
             throw new IllegalArgumentException("Unable to add activity log, reason might be pet not found");
     }
 
-    public ActivityLogDTO updateActivityLog(String petId, UUID logId, ActivityLogDTO activityLogDTO) {
+    public ActivityLogDTO updateActivityLog(String petId, String authorizationTokern, UUID logId, ActivityLogDTO activityLogDTO) throws Exception{
         ActivityLog activityLog = new ActivityLog(petId, activityLogDTO);
         activityLog.setLogId(logId);
         activityLogDTO.setLogId(logId);
-        if(activityLogRepository.getReferenceByLogIdAndPetId(logId,petId) != 0 && activityLogRepository.save(activityLog) != null) {
+        if(validateUser(authorizationTokern) && activityLogRepository.getReferenceByLogIdAndPetId(logId,petId) != 0 && activityLogRepository.save(activityLog) != null) {
             return activityLogDTO;
         }
         else
             throw new IllegalArgumentException("Pet not found, if you want to add a new log use POST method");
     }
 
-    public void deleteActivityLog(String petId, UUID logId) {
-        if(activityLogRepository.getReferenceByLogIdAndPetId(logId,petId) != 0) {
+    public void deleteActivityLog(String petId, String authorizationTokern, UUID logId) throws Exception{
+        if(validateUser(authorizationTokern) && activityLogRepository.getReferenceByLogIdAndPetId(logId,petId) != 0) {
             activityLogRepository.deleteById(logId);
         }
         else{
@@ -79,7 +87,8 @@ public class ActivityLogService {
         }
     }
 
-    public List<ActivityRecommendationDTO> getActivityRecommendations(String  petId) {
+    public List<ActivityRecommendationDTO> getActivityRecommendations(String  petId, String authorizationToken) throws Exception{
+        validateUser(authorizationToken);
         List<ActivityLog> activityLogs = activityLogRepository.getActivityLogs(petId);
         List<ActivityRecommendationDTO> recommendations = new ArrayList<>();
         if(activityLogs.size() == 0){

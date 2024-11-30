@@ -31,10 +31,18 @@ public class HealthInsightsService {
         this.activityLogRepository = activityLogRepository;
         this.nutritionLogRepository = nutritionLogRepository;
     }
+    public boolean validateUser(String authorizationToken) throws Exception{
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/users/verify-token";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authorizationToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        return response.getStatusCode().is2xxSuccessful();
+    }
 
-
-    public HealthInsightsDTO getHealthInsights(String petId) {
-        if(activityLogRepository.getActivityLogs(petId) != null && nutritionLogRepository.getNutritionLogs(petId) != null) {
+    public HealthInsightsDTO getHealthInsights(String petId, String authorizationToken) throws Exception{
+        if(validateUser(authorizationToken)&&activityLogRepository.getActivityLogs(petId) != null && nutritionLogRepository.getNutritionLogs(petId) != null) {
             List<ActivityLog> activityLogs = activityLogRepository.getActivityLogs(petId);
             List<NutrionLog> nutritionLogs = nutritionLogRepository.getNutritionLogs(petId);
 
@@ -95,7 +103,7 @@ public class HealthInsightsService {
         }
     }
 
-    public List<HealthInsightsDTO> getUserDashBoard(String authorizationToken, String userId) {
+    public List<HealthInsightsDTO> getUserDashBoard(String authorizationToken, String userId) throws Exception{
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/pets";
         HttpHeaders headers = new HttpHeaders();
@@ -115,7 +123,7 @@ public class HealthInsightsService {
         }
         List<HealthInsightsDTO> healthInsightsDTOS = new ArrayList<>();
         for (String id : ids) {
-            healthInsightsDTOS.add(getHealthInsights(id));
+            healthInsightsDTOS.add(getHealthInsights(id,authorizationToken));
         }
         return healthInsightsDTOS;
     }

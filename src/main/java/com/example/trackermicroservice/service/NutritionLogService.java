@@ -24,6 +24,15 @@ public class NutritionLogService {
     public NutritionLogService(NutritionLogRepository nutritionLogRepository) {
         this.nutritionLogRepository = nutritionLogRepository;
     }
+    public boolean validateUser(String authorizationToken) throws Exception{
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/users/verify-token";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authorizationToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        return response.getStatusCode().is2xxSuccessful();
+    }
     public boolean checkPetExisistsOrNot(String petId, String authorizationToken) throws Exception{
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/pets/"+petId;
@@ -34,8 +43,8 @@ public class NutritionLogService {
         return response.getStatusCode().is2xxSuccessful();
 
     }
-    public List<NutritionLogDTO> getNutritionLogs(String petId) {
-        if(nutritionLogRepository.getNutritionLogs(petId).size() != 0) {
+    public List<NutritionLogDTO> getNutritionLogs(String petId, String authorizationTokern) throws Exception{
+        if(validateUser(authorizationTokern) && nutritionLogRepository.getNutritionLogs(petId).size() != 0) {
             List<NutrionLog> nutrionLogs = nutritionLogRepository.getNutritionLogs(petId);
             List<NutritionLogDTO> nutritionLogDTOS = new ArrayList<>();
             for(NutrionLog nutrionLog : nutrionLogs) {
@@ -59,10 +68,10 @@ public class NutritionLogService {
             throw new IllegalArgumentException("Unable to add nutrition log");
     }
 
-    public NutritionLogDTO updateNutritionLog(String petId, UUID logId, NutritionLogDTO nutritionLogDTO) {
+    public NutritionLogDTO updateNutritionLog(String petId, String authorizationTokern, UUID logId, NutritionLogDTO nutritionLogDTO) throws Exception{
         NutrionLog nutrionLog = new NutrionLog(petId, nutritionLogDTO);
         nutrionLog.setLogId(logId);
-        if(nutritionLogRepository.getReferenceByLogAndPetId(logId, petId) != 0 && nutritionLogRepository.save(nutrionLog) != null) {
+        if(validateUser(authorizationTokern) && nutritionLogRepository.getReferenceByLogAndPetId(logId, petId) != 0 && nutritionLogRepository.save(nutrionLog) != null) {
             nutritionLogDTO.setPetId(petId);
             nutritionLogDTO.setLogId(logId);
             return nutritionLogDTO;
@@ -71,17 +80,17 @@ public class NutritionLogService {
             throw new IllegalArgumentException("Pet not found, if you want to add a new log use POST method");
     }
 
-    public void deleteNutritionLog(String petId, UUID logId) {
-        if(nutritionLogRepository.getReferenceByLogAndPetId(logId,petId) != 0) {
+    public void deleteNutritionLog(String petId, String authorizationTokern, UUID logId) throws Exception{
+        if(validateUser(authorizationTokern) && nutritionLogRepository.getReferenceByLogAndPetId(logId,petId) != 0) {
             nutritionLogRepository.deleteById(logId);
         }
         else
             throw new IllegalArgumentException("Pet not found");
     }
 
-    public List<NutritionRecommendationDTO> getNutritionRecommendations(String petId) {
+    public List<NutritionRecommendationDTO> getNutritionRecommendations(String petId, String authorizationTokern) throws Exception{
         List<NutrionLog> nutrionLogs = nutritionLogRepository.getNutritionLogs(petId);
-        if(nutrionLogs.size() == 0) {
+        if(validateUser(authorizationTokern) && nutrionLogs.size() == 0) {
             throw new IllegalArgumentException("Pet not found");
         }
         List<NutritionRecommendationDTO> recommendations = new ArrayList<>();

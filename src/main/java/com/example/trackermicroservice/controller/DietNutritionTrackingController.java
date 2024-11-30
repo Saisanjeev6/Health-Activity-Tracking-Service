@@ -25,22 +25,28 @@ public class DietNutritionTrackingController {
         return "Hello";
     }
     @GetMapping("/{petId}/nutrition/logs")
-    public ResponseEntity<?> getNutritionLogs(@PathVariable("petId") String petId) {
+    public ResponseEntity<?> getNutritionLogs(@RequestHeader("Authorization") String authorizationToken,@PathVariable("petId") String petId) {
         try{
-            return ResponseEntity.ok(nutritionLogService.getNutritionLogs(petId));
+            return ResponseEntity.ok(nutritionLogService.getNutritionLogs(petId, authorizationToken));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There are no logs with the given petId");
         }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @GetMapping("/{petId}/nutrition/recommendations")
-    public ResponseEntity<?> getNutritionRecommendations(@PathVariable("petId") String petId) {
+    public ResponseEntity<?> getNutritionRecommendations(@RequestHeader("Authorization") String authorizationToken,@PathVariable("petId") String petId) {
         try {
-            return ResponseEntity.ok(nutritionLogService.getNutritionRecommendations(petId));
+            return ResponseEntity.ok(nutritionLogService.getNutritionRecommendations(petId,authorizationToken));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There are no logs with the given petId, so we can't give any recommendations");
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -58,24 +64,29 @@ public class DietNutritionTrackingController {
     }
 
     @PutMapping("/{petId}/nutrition/log/{logId}")
-    public ResponseEntity<?> updateNutritionLog(@PathVariable("petId") String petId, @PathVariable("logId") UUID logId, @RequestBody NutritionLogDTO nutritionLogDTO) {
+    public ResponseEntity<?> updateNutritionLog(@RequestHeader("Authorization") String authorizationToken,@PathVariable("petId") String petId, @PathVariable("logId") UUID logId, @RequestBody NutritionLogDTO nutritionLogDTO) {
         try {
-            return ResponseEntity.ok(nutritionLogService.updateNutritionLog(petId, logId, nutritionLogDTO));
+            return ResponseEntity.ok(nutritionLogService.updateNutritionLog(petId, authorizationToken, logId, nutritionLogDTO));
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There are no logs with the given petId and logId so we can't update the log");
         }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{petId}/nutrition/log/{logId}")
-    public ResponseEntity<?> deleteNutritionLog(@PathVariable("petId") String petId, @PathVariable("logId") UUID logId) {
+    public ResponseEntity<?> deleteNutritionLog(@RequestHeader("Authorization") String authorizationToken,@PathVariable("petId") String petId, @PathVariable("logId") UUID logId) {
         try {
-            nutritionLogService.deleteNutritionLog(petId, logId);
+            nutritionLogService.deleteNutritionLog(petId, authorizationToken, logId);
             return ResponseEntity.ok("Log deleted successfully");
         }
         catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There are no logs with the given petId and logId so we can't delete the log");
         }
-
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }
