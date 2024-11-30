@@ -36,7 +36,7 @@ public class ActivityLogService {
     }
     public boolean checkPetExisistsOrNot(String petId, String authorizationToken) throws Exception{
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/pets/{id}";
+        String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/pets/"+petId;
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authorizationToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
