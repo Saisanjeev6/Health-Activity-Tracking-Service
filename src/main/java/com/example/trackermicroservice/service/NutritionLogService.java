@@ -6,7 +6,12 @@ import com.example.trackermicroservice.DTO.NutritionRecommendationDTO;
 import com.example.trackermicroservice.entity.NutrionLog;
 import com.example.trackermicroservice.repository.NutritionLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +23,16 @@ public class NutritionLogService {
     @Autowired
     public NutritionLogService(NutritionLogRepository nutritionLogRepository) {
         this.nutritionLogRepository = nutritionLogRepository;
+    }
+    public boolean checkPetExisistsOrNot(String petId, String authorizationToken) throws Exception{
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/pets/"+petId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authorizationToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        return response.getStatusCode().is2xxSuccessful();
+
     }
     public List<NutritionLogDTO> getNutritionLogs(String petId) {
         if(nutritionLogRepository.getNutritionLogs(petId).size() != 0) {
@@ -33,10 +48,10 @@ public class NutritionLogService {
             throw new IllegalArgumentException("Pet not found");
     }
 
-    public NutritionLogDTO addNutritionLog(String  petId, NutritionLogDTO nutritionLogDTO) {
+    public NutritionLogDTO addNutritionLog(String  petId, String authorizationToken,NutritionLogDTO nutritionLogDTO) throws Exception{
         NutrionLog nutrionLog = new NutrionLog(petId, nutritionLogDTO);
 
-        if (nutritionLogRepository.save(nutrionLog) != null) {
+        if (checkPetExisistsOrNot(petId, authorizationToken) && nutritionLogRepository.save(nutrionLog) != null) {
             nutritionLogDTO.setLogId(nutrionLog.getLogId());
             nutritionLogDTO.setPetId(petId);
             return nutritionLogDTO;

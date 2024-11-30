@@ -45,12 +45,15 @@ public class DietNutritionTrackingController {
     }
 
     @PostMapping("/{petId}/nutrition/log")
-    public ResponseEntity<?> addNutritionLog(@PathVariable("petId") String petId, @RequestBody NutritionLogDTO nutritionLogDTO) {
+    public ResponseEntity<?> addNutritionLog(@RequestHeader("Authorization") String authorizationToken, @PathVariable("petId") String petId, @RequestBody NutritionLogDTO nutritionLogDTO) {
         try {
-            return ResponseEntity.ok(nutritionLogService.addNutritionLog(petId, nutritionLogDTO));
+            return ResponseEntity.ok(nutritionLogService.addNutritionLog(petId,authorizationToken, nutritionLogDTO));
         }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The request is invalid");
+        catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The request is invalid, reason might be pet not found");
         }
     }
 

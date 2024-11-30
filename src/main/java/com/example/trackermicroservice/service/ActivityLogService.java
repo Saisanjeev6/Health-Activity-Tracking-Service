@@ -5,8 +5,14 @@ import com.example.trackermicroservice.DTO.ActivityLogDTO;
 import com.example.trackermicroservice.DTO.ActivityRecommendationDTO;
 import com.example.trackermicroservice.entity.ActivityLog;
 import com.example.trackermicroservice.repository.ActivityLogRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +24,17 @@ public class ActivityLogService {
     @Autowired
     public ActivityLogService(ActivityLogRepository activityLogRepository) {
         this.activityLogRepository = activityLogRepository;
+    }
+
+    public boolean checkPetExisistsOrNot(String petId, String authorizationToken) throws Exception{
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://a487d8b00bc6542ca91c2dd298684952-1223040857.us-east-1.elb.amazonaws.com/api/pets/{id}";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authorizationToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        return response.getStatusCode().is2xxSuccessful();
+
     }
     public List<ActivityLogDTO> getActivityLogs(String petId) {
         if(activityLogRepository.getActivityLogs(petId).size() != 0){
@@ -33,13 +50,13 @@ public class ActivityLogService {
             throw new IllegalArgumentException("Pet not found");
     }
 
-    public ActivityLogDTO addActivityLog(String petId, ActivityLogDTO activityLogDTO) {
+    public ActivityLogDTO addActivityLog(String petId, String authorizationToken, ActivityLogDTO activityLogDTO) throws Exception{
         ActivityLog activityLog = new ActivityLog(petId, activityLogDTO);
-        if (activityLogRepository.save(activityLog) != null) {
+        if (checkPetExisistsOrNot(petId, authorizationToken) && activityLogRepository.save(activityLog) != null) {
             activityLogDTO.setLogId(activityLog.getLogId());
             return activityLogDTO;
         } else
-            throw new IllegalArgumentException("Unable to add activity log");
+            throw new IllegalArgumentException("Unable to add activity log, reason might be pet not found");
     }
 
     public ActivityLogDTO updateActivityLog(String petId, UUID logId, ActivityLogDTO activityLogDTO) {

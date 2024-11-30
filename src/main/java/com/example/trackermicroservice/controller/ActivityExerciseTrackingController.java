@@ -38,12 +38,15 @@ public class ActivityExerciseTrackingController {
         }
     }
     @PostMapping("/{petId}/activity/log")
-    public ResponseEntity<?> addActivityLog(@PathVariable("petId") String petId, @RequestBody ActivityLogDTO activityLogDTO) {
+    public ResponseEntity<?> addActivityLog(@RequestHeader("Authorization") String authorizationToken, @PathVariable("petId") String petId, @RequestBody ActivityLogDTO activityLogDTO) {
         try {
-            return ResponseEntity.ok(activityLogService.addActivityLog(petId, activityLogDTO));
+            return ResponseEntity.ok(activityLogService.addActivityLog(petId, authorizationToken, activityLogDTO));
         }
         catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The request is invalid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pet not found");
         }
     }
     @PutMapping("/{petId}/activity/log/{logId}")
